@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Añadir USDT</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1rem; padding: 1.5rem;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0b141a; color: #e9edef; text-align: center;
+  }
+  img { width: 96px; height: 96px; border-radius: 50%; }
+  h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
+  p { margin: 0; max-width: 22rem; line-height: 1.5; color: #a7b4bd; font-size: .95rem; }
+  button {
+    font: inherit; font-weight: 600; border: 0; border-radius: .75rem;
+    padding: 1rem 1.5rem; background: #26a17b; color: #fff; cursor: pointer;
+    width: 100%; max-width: 22rem;
+  }
+  button.sec { background: #1f2c34; color: #e9edef; }
+  code {
+    display: block; word-break: break-all; background: #1f2c34;
+    padding: .6rem; border-radius: .5rem; font-size: .75rem; color: #a7b4bd;
+  }
+  .aviso { font-size: .8rem; color: #d9a441; }
+</style>
+
+<img src="logo.png" alt="">
+<h1 id="t">Añadir USDT a mi wallet</h1>
+<p id="s">Un toque y el token queda en tu lista. Red: BNB Smart Chain.</p>
+
+<button id="add">Añadir a mi wallet</button>
+<button class="sec" id="copy">Copiar dirección del contrato</button>
+
+<p class="aviso" id="aviso"></p>
+<code id="addr">0x2F3b2b9C004568b272acc053b8C44ef7dDA5099c</code>
+
+<script>
+const TOKEN = document.getElementById("addr").textContent.trim();
+const en = navigator.language.toLowerCase().startsWith("en");
+
+if (en) {
+  document.getElementById("t").textContent = "Add USDT to my wallet";
+  document.getElementById("s").textContent = "One tap and the token is in your list. Network: BNB Smart Chain.";
+  document.getElementById("add").textContent = "Add to my wallet";
+  document.getElementById("copy").textContent = "Copy contract address";
+}
+
+document.getElementById("copy").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(TOKEN);
+    document.getElementById("copy").textContent = en ? "Copied" : "Copiada";
+  } catch (e) {
+    document.getElementById("aviso").textContent = TOKEN;
+  }
+};
+
+document.getElementById("add").onclick = async () => {
+  if (!window.ethereum) {
+    document.getElementById("aviso").textContent = en
+      ? "No wallet detected. Open this page from MetaMask or Trust Wallet, or import the token manually with the address below."
+      : "No se detecta wallet. Abre esta página desde MetaMask o Trust Wallet, o importa el token a mano con la dirección de abajo.";
+    return;
+  }
+  try {
+    await window.ethereum.request({
+      method: "wallet_watchAsset",
+      params: { type: "ERC20", options: { address: TOKEN, symbol: "USDT", decimals: 6 } }
+    });
+    document.getElementById("aviso").textContent = en ? "Done." : "Listo.";
+  } catch (e) {
+    document.getElementById("aviso").textContent = e.message;
+  }
+};
+</script>
+</html>
